@@ -95,7 +95,7 @@ function Section({ subtitle, description, video, gradiente, id, children, tarjet
 
       {/* ---------------------------------------------Mini Tarjetas---------------------------------------- */}
 
-      <div className={`relative w-full h-full text-[white] gap-5 py-12 ${cliente && cliente[id] && cliente[id].miniTarjetas && Object.values(cliente[id].miniTarjetas).length > 5 ? 'grid grid-cols-2 lg:grid-cols-3': 'grid grid-cols-2'}`}>
+      <div className={`relative w-full h-full text-[white] gap-5 py-12 ${cliente && cliente[id] && cliente[id].miniTarjetas && Object.values(cliente[id].miniTarjetas).length > 5 ? 'grid grid-cols-2 lg:grid-cols-3' : 'grid grid-cols-2'}`}>
         {cliente && cliente[id] && cliente[id].miniTarjetas && Object.values(cliente[id].miniTarjetas).map((i, index) => <Item e1={i[`ip`]} e2={i[`ic`]} />)}
       </div>
       <div className='flex w-full justify-start '>
@@ -135,7 +135,7 @@ function Section({ subtitle, description, video, gradiente, id, children, tarjet
 
 
 export default function Home() {
-  const { user, introVideo, userDB, setUserProfile,modal, setModal, setUserSuccess, calcValueFCL, setCalcValueFCL, calcValue, setCalcValue, element, setElement, naviera, setNaviera, success, setUserData, postsIMG, setUserPostsIMG, nav, cliente, setCliente, focus, setFocus, seeMore, setSeeMore } = useUser()
+  const { user, introVideo, userDB, setUserProfile, modal, setModal, setUserSuccess, calcValueFCL, setCalcValueFCL, calcValue, setCalcValue, element, setElement, naviera, setNaviera, success, setUserData, postsIMG, setUserPostsIMG, nav, cliente, setCliente, focus, setFocus, seeMore, setSeeMore } = useUser()
 
 
   const [selectValue, setSelectValue] = useState({})
@@ -266,23 +266,20 @@ export default function Home() {
       },
     }
     )
- }
+  }
 
 
-  console.log(cliente)
   function calculator(e) {
     e.preventDefault()
     if (user === null || user === undefined) {
       router.push('/Login')
       return
     }
-    console.log(selectValue)
-    console.log(inputRef.current.value)
-    console.log(inputRef2.current.value)
+  
     let val = Object.values(cliente.priceFTL).find((i) => {
       return i.ORIGEN === inputRef.current.value && i.DESTINO === inputRef2.current.value && i.MERCANCIA === selectValue.MERCANCIA && i['PESO (KG)'] >= selectValue['PESO (KG)'] && i.SERVICIO === selectValue.SERVICIO && i['TIPO DE UNIDAD'] === selectValue['TIPO DE UNIDAD'] && i['VOLUMEN M3'] >= selectValue['VOLUMEN M3']
     })
-    val !== undefined ? setCalcValue(val) : setUserSuccess('NO DATA')
+    val !== undefined ? setCalcValue({...val, ['PESO (KG)']: selectValue['PESO (KG)'], ['VOLUMEN M3']: selectValue['VOLUMEN M3'], TOTAL: val['SERVICIOS LOGISTICOS USD'] *1+ val['FLETE USD']*1}) : setUserSuccess('NO DATA')
   }
   function calculatorFCL(e) {
     e.preventDefault()
@@ -324,12 +321,9 @@ export default function Home() {
       setModal('REGISTRATE')
     }
   }
+  console.log(calcValue)
 
-  function calcularVenc() {
-    var i = new Date('2024,07,28')
-    var h = new Date()
-    i < h & console.log('vencido')
-  }
+
   return (
     <main className={`relative h-screen w-screen `} onClick={reset} id='inicio'>
       <section className='relative '>
@@ -366,10 +360,10 @@ export default function Home() {
                   <li className={`-mb-px mr-1 ${element === 'TRACKING' && 'bg-[#F7BE38] border border-[blue] border-b-transparent'}`} onClick={() => handlerElement('TRACKING')}>
                     <a className=" inline-block rounded-t py-2 px-2 text-blue-700 font-semibold" href="#">Tracking</a>
                   </li>
-                  <li className={`-mb-px mr-1 ${element === 'FCL' && 'bg-[#F7BE38] border border-[blue] border-b-transparent'}`} onClick={() => handlerElement('FCL')}>
+                  <li className={`-mb-px mr-1 ${element === 'FCL' && 'bg-[#F7BE38] border border-[blue] border-b-transparent'}`} onClick={() => {setSelectValue({}),handlerElement('FCL')}}>
                     <a className=" inline-block rounded-t py-2 px-2 text-blue-500 font-semibold" href="#">Cotizador FCL</a>
                   </li>
-                  <li className={`-mb-px mr-1 ${element === 'FTL' && 'bg-[#F7BE38] border border-[blue] border-b-transparent'}`} onClick={() => handlerElement('FTL')}>
+                  <li className={`-mb-px mr-1 ${element === 'FTL' && 'bg-[#F7BE38] border border-[blue] border-b-transparent'}`} onClick={() => {setSelectValue({}),handlerElement('FTL')}}>
                     <a className=" inline-block rounded-t py-2 px-2 text-blue-500  font-semibold" href="#">Cotizador FTL</a>
                   </li>
                 </ul>
@@ -439,7 +433,7 @@ export default function Home() {
                       <input id="checkbox_1" type="checkbox" checked={selectValue['SERVICIO'] === 'SIN DEVOLUCION'} value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-100 focus:ring-1 " onClick={() => handlerClickSelect2('SIN DEVOLUCION')} />
                       <label for="checkbox_1" class="ms-2 text-sm font-medium text-gray-900 ">Sin devolucion</label>
                     </div>
-                    {Object.values(cliente.priceFTL) && Object.values(cliente.priceFTL).filter((i) => i.ORIGEN === inputRef.current.value && i.DESTINO === inputRef2.current.value) && Object.values(cliente.priceFTL).filter((i) => i.ORIGEN === inputRef.current.value && i.DESTINO === inputRef2.current.value).map((i) => i['SERVICIO']).filter(onlyUnique).length == 2 && <div class="flex items-center">
+                    {inputRef.current  && inputRef2.current &&  Object.values(cliente.priceFTL) && Object.values(cliente.priceFTL).filter((i) => i.ORIGEN === inputRef.current.value && i.DESTINO === inputRef2.current.value) && Object.values(cliente.priceFTL).filter((i) => i.ORIGEN === inputRef.current.value && i.DESTINO === inputRef2.current.value).map((i) => i['SERVICIO']).filter(onlyUnique).length == 2 && <div class="flex items-center">
                       <input id="checkbox_2" type="checkbox" checked={selectValue['SERVICIO'] === 'CON DEVOLUCION'} value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-100 focus:ring-1 " onClick={() => handlerClickSelect2('CON DEVOLUCION')} />
                       <label for="checkbox_2" class="ms-2 text-sm font-medium text-gray-900 ">Con devolucion</label>
                     </div>}
@@ -466,10 +460,10 @@ export default function Home() {
                       <span className='w-full bg-slate-100  font-bold  border px-3 py-1'>MERCACIA</span><span className='w-full border px-3 py-1'>{calcValue['MERCANCIA']}</span>
                     </div>
                     <div className='grid grid-cols-2'>
-                      <span className='w-full bg-slate-100  font-bold  border px-3 py-1'>PESO</span><span className='w-full border px-3 py-1'>{calcValue['PESO (KG)']}</span>
+                      <span className='w-full bg-slate-100  font-bold  border px-3 py-1'>PESO</span><span className='w-full border px-3 py-1'>{calcValue['PESO (KG)']} KG</span>
                     </div>
                     <div className='grid grid-cols-2'>
-                      <span className='w-full bg-slate-100  font-bold  border px-3 py-1'>VOLUMEN</span><span className='w-full border px-3 py-1'>{calcValue['VOLUMEN M3']}</span>
+                      <span className='w-full bg-slate-100  font-bold  border px-3 py-1'>VOLUMEN</span><span className='w-full border px-3 py-1'>{calcValue['VOLUMEN M3']} M3</span>
                     </div>
                     <div className='grid grid-cols-2'>
                       <span className='w-full bg-slate-100  font-bold  border px-3 py-1'>TIPO DE UNIDAD</span><span className='w-full border px-3 py-1'>{calcValue['TIPO DE UNIDAD']}</span>
@@ -480,13 +474,16 @@ export default function Home() {
                     <div className='grid grid-cols-2'>
                       <span className='w-full bg-slate-100  font-bold  border px-3 py-1'>FLETE USD</span><span className='w-full border px-3 py-1'>{calcValue['FLETE USD']}</span>
                     </div>
-                    <div className='grid grid-cols-2'>
+                    <div className='grid grid-cols-2 '>
                       <span className='w-full bg-slate-100  font-bold  border px-3 py-1'>SERVICIOS LOGISTICOS USD</span><span className='w-full border px-3 py-1'>{calcValue['SERVICIOS LOGISTICOS USD']}</span>
+                    </div>
+                    <div className='grid grid-cols-2 bg-yellow-500'>
+                      <span className='w-full bg-slate-100  font-bold  border px-3 py-1'>TOTAL USD</span><span className='w-full border px-3 py-1'>{calcValue['TOTAL']}</span>
                     </div>
                   </div>
 
                   <div className='relative  w-full grid grid-cols-2 gap-x-5 mt-5'>
-                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-[12px]  px-5 py-2.5 text-center" onClick={() => setCalcValue('NO DATA')}>Volver a calcular</button>
+                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-[12px]  px-5 py-2.5 text-center" onClick={() => {setSelectValue({}), setCalcValue('NO DATA')}}>Volver a calcular</button>
                     <button type="submit" className="w-full flex  justify-center items-center text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-[12px]  px-5 py-2 text-center" onClick={HandlerCheckOut}>
                       Cotizacion PDF
                       <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
